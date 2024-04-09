@@ -1,0 +1,38 @@
+version: '3.4'
+
+services:
+  nginx:
+    build: nginx
+    restart: always
+    ports:
+      - "7777:80"
+  mysql:
+    image: mariadb
+    restart: always
+    depends_on:
+      - nginx
+    volumes:
+      - './database:/var/lib/mysql'
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    depends_on:
+      - nginx
+      - mysql
+    environment:
+      PMA_HOST: mysql
+  frontend:
+    build: frontend
+    restart: always
+    depends_on:
+      - nginx
+  backend:
+    build: backend
+    restart: always
+    depends_on:
+      - nginx
+      - mysql
+    environment:
+      PORT: 9000
+      LOG_LEVEL: "debug"
+      OAUTH_GOOGLE_CLIENT_ID: "325396365340-a0ufpksrnsmigrpko21ah2to0n3p6uv9.apps.googleusercontent.com"
