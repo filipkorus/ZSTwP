@@ -7,50 +7,60 @@ import '@/styles/pages.css';
 import useForm from '@/hooks/useForm';
 import theme from '@/theme';
 import RouterLink from '@/components/routing/RouterLink';
+import ErrorFields from '@/types/ErrorFields';
+import {register} from '@/api/auth';
+import {AxiosError} from 'axios';
 
 const LoginPage = () => {
 	const [loading, setLoading] = useState<boolean>(false);
-	const [error, setError] = useState<string>('');
+	const [errorMessage, setErrorMessage] = useState<string>('');
+	const [successMessage, setSuccessMessage] = useState<string>('');
+	const [errorFields, setErrorFields] = useState<ErrorFields>([]);
 
-	const {handleLogin, currentUser} = useAuth();
+	const {currentUser} = useAuth();
 
-	const {formData, handleInputChange, setNewFormValues} = useForm({
+	const {formData, handleInputChange, resetForm, setNewFormValues} = useForm({
+		name: '',
 		email: '',
 		password: ''
 	});
+
+	const fieldError = (fieldName: keyof typeof formData) => errorFields.find(error => error.path[0] === fieldName);
 
 	const location = useLocation();
 	const query = new URLSearchParams(location.search);
 	const navigate = useNavigate();
 
-	const params = new URLSearchParams(window.location.search);
-	const [isLoggedOut, setIsLoggedOut] = useState<boolean>(params.get('loggedOut') === 'true');
-	const [isKickedOut, setIsKickedOut] = useState<boolean>(params.get('kickedOut') === 'true');
-
-	// redirect authorized user from Login page
+	// redirect authorized user from Register page
 	useEffect(() => {
 		if (currentUser == null) return;
 
 		navigate(`/?${query.toString()}`);
 	}, [currentUser]);
 
-	const handleSubmit = async ({email, password}: typeof formData) => {
-		setError('');
-		setIsLoggedOut(false);
-		setIsKickedOut(false);
+	const handleSubmit = async ({name, email, password}: typeof formData) => {
+		setErrorMessage('');
+		setSuccessMessage('');
 		setLoading(true);
 
-		const {success, error} = await handleLogin({email, password});
+		register({name, email, password})
+			.then(({data}) => {
+				if (data?.success) {
+					resetForm();
+					setSuccessMessage(data?.msg ?? 'Account has been created');
+				} else {
+					setErrorMessage(data?.msg ?? 'Error. Try again');
+				}
+			})
+			.catch(error => {
+				if (!(error instanceof AxiosError)) return;
 
-		// redirect authorized user to Dashboard page
-		if (success) {
-			return navigate('/');
-		}
-
-
-		setNewFormValues({...formData, password: ''}); // reset password input
-		setError(error ?? 'Server error');
-		setLoading(false);
+				setErrorFields(error?.response?.data?.errors ?? []);
+				setErrorMessage(error?.response?.data?.msg ?? 'Server error');
+			})
+			.finally(() => {
+				setLoading(false);
+			});
 	}
 
 	return <>
@@ -67,9 +77,15 @@ const LoginPage = () => {
 					</p>
 				</div>
 
-				{error && currentUser == null && (
+				{errorMessage && currentUser == null && (
 					<Box marginTop="2rem">
-						<Alert severity="error">{error}</Alert>
+						<Alert severity="error">{errorMessage}</Alert>
+					</Box>
+				)}
+
+				{successMessage && currentUser == null && (
+					<Box marginTop="2rem">
+						<Alert severity="success">{successMessage}</Alert>
 					</Box>
 				)}
 
@@ -84,14 +100,34 @@ const LoginPage = () => {
 							<TextField
 								variant="outlined"
 								required
-								label="Email"
-								name="email"
-								type="email"
+								type="name"
+								label="Your name"
+								name="name"
 								onChange={handleInputChange}
 								disabled={loading}
 								inputProps={{
 									maxLength: 255,
 								}}
+								error={fieldError('name') != null}
+								helperText={fieldError('name')?.message}
+								value={formData.name}
+								fullWidth
+								sx={{mb: 2, mt: 1}}
+							/>
+
+							<TextField
+								variant="outlined"
+								required
+								type="email"
+								label="Email"
+								name="email"
+								onChange={handleInputChange}
+								disabled={loading}
+								inputProps={{
+									maxLength: 255,
+								}}
+								error={fieldError('email') != null}
+								helperText={fieldError('email')?.message}
 								value={formData.email}
 								fullWidth
 								sx={{mb: 2, mt: 1}}
@@ -109,51 +145,29 @@ const LoginPage = () => {
 									minLength: 6,
 									maxLength: 255,
 								}}
+								error={fieldError('password') != null}
+								helperText={fieldError('password')?.message}
 								value={formData.password}
 								fullWidth
 								sx={{mb: 2, mt: 1}}
 							/>
 
 							<Button variant="contained" type="submit" disabled={loading} fullWidth>
-								Log in
+								Register in
 							</Button>
 						</FormGroup>
 					</form>
 
-					<RouterLink to="/register">
+					<RouterLink to="/login">
 						<Button style={{color: theme.palette.primary.main, borderColor: theme.palette.primary.main}}
 						        variant="outlined" sx={{marginTop: '3rem'}}
 						        disabled={loading} fullWidth>
-							Do not have an account yet? Register here
+							Already have an account? Login here
 						</Button>
 					</RouterLink>
 				</Box>
 			</Grid>
-
-			{currentUser == null && (
-				<>
-					<Snackbar open={isLoggedOut}>
-						<Alert severity="success" onClose={() => setIsLoggedOut(false)}>
-							Logged out successfully
-						</Alert>
-					</Snackbar>
-					<Snackbar open={isKickedOut}>
-						<Alert severity="warning" onClose={() => setIsKickedOut(false)}>
-							Please log in
-						</Alert>
-					</Snackbar>
-				</>
-			)}
 		</Container>
-
-		{currentUser == null && <>
-          <Snackbar open={isLoggedOut}>
-              <Alert severity="success" onClose={() => setIsLoggedOut(false)}>Logged out successfully</Alert>
-          </Snackbar>
-          <Snackbar open={isKickedOut}>
-              <Alert severity="warning" onClose={() => setIsKickedOut(false)}>Please log in</Alert>
-          </Snackbar>
-      </>}
 	</>
 };
 

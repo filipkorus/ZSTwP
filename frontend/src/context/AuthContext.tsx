@@ -12,7 +12,7 @@ type SuccessOrErrorMessage = {
 
 type AuthContext = {
 	currentUser: User | null,
-	handleLogin: (credential: string) => Promise<SuccessOrErrorMessage>,
+	handleLogin: ({email, password}: { email: string, password: string }) => Promise<SuccessOrErrorMessage>,
 	handleLogout: () => Promise<SuccessOrErrorMessage>
 };
 
@@ -26,9 +26,12 @@ export const AuthProvider = ({children}: { children: ReactNode }) => {
 	const [currentUser, setCurrentUser] = useState<User | null>(null);
 	const [loading, setLoading] = useState<boolean>(true);
 
-	const handleLogin = async (credential: string): Promise<SuccessOrErrorMessage> => {
+	const handleLogin = async ({email, password}: {
+		email: string,
+		password: string
+	}): Promise<SuccessOrErrorMessage> => {
 		try {
-			const {data} = await login(credential);
+			const {data} = await login({email, password});
 
 			setCurrentUser(data?.user as User);
 			api.defaults.headers.common['Authorization'] = `Bearer ${data?.token}`;
@@ -82,7 +85,8 @@ export const AuthProvider = ({children}: { children: ReactNode }) => {
 					setCurrentUser(res.data?.user as User);
 				}
 			})
-			.catch(error => {})
+			.catch(error => {
+			})
 			.finally(() => setLoading(false));
 	}, []);
 

@@ -23,18 +23,18 @@ export const emailExists = async (email: string): Promise<boolean> => {
  *
  * @returns {Promise<User|null>} User object from database or null if error.
  */
-export const createUser = async ({name, picture, email}: {
+export const createUser = async ({name, email, passwordHash}: {
 	name: string,
-	picture: string,
-	email: string
+	email: string,
+	passwordHash: string
 }): Promise<User | null> => {
 	let user = null;
 	try {
 		user = await prisma.user.create({
 			data: {
 				name,
-				picture,
-				email
+				email,
+				password: passwordHash
 			}
 		});
 		if (user == null) return null;
@@ -75,28 +75,5 @@ export const getUserByEmail = async (email: string): Promise<User | null> => {
 	} catch (error) {
 		logger.error(error);
 		return null;
-	}
-};
-
-/**
- *
- * @param newName {string} Name to be updated.
- * @param newPicture {string} User's picture.
- * @param email {string} User's email.
- * @returns Boolean indicating success or not.
- */
-export const updateNameAndPicture = async (newName: string, newPicture: string, email: string): Promise<boolean> => {
-	try {
-		await prisma.user.update({
-			where: {email},
-			data: {
-				name: newName,
-				picture: newPicture
-			}
-		});
-		return true;
-	} catch (error) {
-		logger.error(error);
-		return false;
 	}
 };

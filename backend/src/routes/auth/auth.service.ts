@@ -1,12 +1,10 @@
 import {PrismaClient, RefreshToken} from "@prisma/client";
-import {OAuth2Client, TokenPayload} from 'google-auth-library';
 import {JwtPayload, sign, verify} from 'jsonwebtoken';
 import config from '../../../config';
 import logger from '../../utils/logger';
+import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
-
-const client = new OAuth2Client(config.OAUTH.GOOGLE_CLIENT_ID);
 
 /**
  * Generated JWT refresh token, saves it to the database and returns it.
@@ -118,7 +116,7 @@ export const verifyRefreshToken = (refreshToken: string): string | JwtPayload | 
 	try {
 		return verify(refreshToken, config.JWT.REFRESH_TOKEN.SECRET);
 	} catch (error) {
-		logger.error(error);
+		logger.debug(error);
 		return null;
 	}
 };
@@ -153,19 +151,23 @@ export const verifyAccessToken = (accessToken: string): string | JwtPayload | nu
 };
 
 /**
+ * Checks whether password is correct.
  *
- * @param oAuthToken {string} Google OAuth token.
- * @returns TokenPayload or null if error.
+ * @returns {boolean} Boolean which indicates password correctness.
+ * @param password {string} Plain text password to be checked.
+ * @param dbPassword {string} Password hash saved in the database.
  */
-export const verifyGoogleToken = async (oAuthToken: string): Promise<TokenPayload | undefined | null> => {
-	try {
-		const ticket = await client.verifyIdToken({
-			idToken: oAuthToken,
-			audience: config.OAUTH.GOOGLE_CLIENT_ID,
-		});
-		return ticket.getPayload();
-	} catch (error) {
-		logger.error(error)
-		return null;
-	}
-}
+export const isPassCorrect = async (password: string, dbPassword: string): Promise<boolean> => {
+	return await bcrypt.compare(password, dbPassword);
+};
+
+/**
+ * Hashes plain text password.
+ *
+ * @returns {string} Password hash string.
+ * @param password {string} Plain text password to be hashed.
+ */
+export const hashPassword = async (password: string): Promise<string> => {
+	return await bcrypt.hash(password, 12)
+};
+

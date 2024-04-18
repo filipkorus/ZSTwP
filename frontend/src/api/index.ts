@@ -1,6 +1,6 @@
 import axios from 'axios';
 import CONFIG from '@/config';
-import {refreshToken} from '@/api/auth.ts';
+import {refreshToken} from '@/api/auth';
 
 const api = axios.create({
 	baseURL: CONFIG.API_URL
@@ -15,6 +15,12 @@ api.interceptors.response.use(res => res, async error => {
 	}
 
 	refresh = true;
+
+	// do not do anything after failed login request
+	if (error.request.responseURL.endsWith('login')) {
+		refresh = false;
+		return Promise.reject(error);
+	}
 
 	try {
 		const {data, status} = await refreshToken();

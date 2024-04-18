@@ -5,7 +5,7 @@ services:
     build: nginx
     restart: always
     ports:
-      - "7777:80"
+      - "7788:80"
   mysql:
     image: mariadb
     restart: always
@@ -35,4 +35,3 @@ services:
     environment:
       PORT: 9000
       LOG_LEVEL: "debug"
-      OAUTH_GOOGLE_CLIENT_ID: "325396365340-a0ufpksrnsmigrpko21ah2to0n3p6uv9.apps.googleusercontent.com"

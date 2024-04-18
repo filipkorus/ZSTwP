@@ -1,10 +1,7 @@
-import React from 'react';
+import React, {useState} from 'react';
 import LogoutIcon from '@mui/icons-material/Logout';
-import DashboardIcon from '@mui/icons-material/Dashboard';
 import ListIcon from '@mui/icons-material/List';
-import CategoryIcon from '@mui/icons-material/Category';
 import SidebarMenuItem from '@/components/sidebar/menu/SidebarMenuItem';
-import PostAddIcon from '@mui/icons-material/PostAdd';
 import {useAuth} from '@/context/AuthContext';
 import {useNavigate} from 'react-router-dom';
 import {
@@ -24,6 +21,8 @@ const SidebarMenu: React.FC = () => {
 	const {currentUser, handleLogout} = useAuth();
 	const navigate = useNavigate();
 	const {isSidebarOpen} = useSidebar();
+
+	const [loading, setLoading] = useState<boolean>(false);
 
 	if (currentUser == null) return <></>;
 
@@ -52,31 +51,10 @@ const SidebarMenu: React.FC = () => {
 			</ListItem>
 
 			<SidebarMenuItem
-				linkTo="/recipe"
-				text="Create Recipe"
-				title="Create Recipe"
-				icon={<PostAddIcon/>}
-			/>
-
-			<SidebarMenuItem
-				linkTo={`/recipe/user/${currentUser.id}`}
-				text="My recipes"
-				title="My recipes"
+				linkTo="#"
+				text="Example nav link"
+				title="Click me!"
 				icon={<ListIcon/>}
-			/>
-
-			<SidebarMenuItem
-				linkTo="/search/"
-				text="Search recipes"
-				title="Search recipes"
-				icon={<CategoryIcon/>}
-			/>
-
-			<SidebarMenuItem
-				linkTo="/"
-				text="Wall"
-				title="Wall"
-				icon={<DashboardIcon/>}
 			/>
 
 			<Box mt={1}>
@@ -92,13 +70,19 @@ const SidebarMenu: React.FC = () => {
 					}}
 					title="Log out"
 					variant="outlined"
-					onClick={() =>
+					onClick={() => {
+						setLoading(true);
+
 						handleLogout()
 							.then(({success, error}) => {
 								if (error) return alert(error);
 								navigate('/login?loggedOut=true');
 							})
-					}
+							.finally(() => {
+								setLoading(false);
+							});
+					}}
+					disabled={loading}
 				>
 					<Box
 						sx={{

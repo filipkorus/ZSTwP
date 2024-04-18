@@ -1,9 +1,10 @@
 import {Router} from 'express';
-import {LoginHandler, LogoutHandler, RefreshTokenHandler} from './auth.controller';
+import {RegisterHandler, LoginHandler, LogoutHandler, RefreshTokenHandler} from './auth.controller';
 import requireAuth from '../../middlewares/requireAuth';
 
 const router = Router();
 
+router.post('/register', RegisterHandler);
 router.post('/login', LoginHandler);
 router.post('/refresh', RefreshTokenHandler);
 

@@ -1,28 +1,31 @@
 import {
 	deleteExpiredRefreshTokens, deleteRefreshToken,
 	generateAccessToken,
-	generateRefreshToken, isRefreshTokenValid,
-	verifyGoogleToken,
+	generateRefreshToken, hashPassword, isPassCorrect, isRefreshTokenValid,
 	verifyRefreshToken
 } from './auth.service';
 import {
 	ACCOUNT_BANNED,
 	ACCOUNT_CREATED,
-	BAD_REQUEST,
-	INVALID_LOGIN_CREDENTIALS, MISSING_BODY_FIELDS, SERVER_ERROR,
+	CONFLICT, SERVER_ERROR,
+	MISSING_BODY_FIELDS,
 	SUCCESS, UNAUTHORIZED
 } from '../../utils/httpCodeResponses/messages';
-import {createUser, emailExists, getUserByEmail, updateNameAndPicture} from '../user/user.service';
+import {createUser, emailExists, getUserByEmail} from '../user/user.service';
 import config from '../../../config';
 import {Request, Response} from 'express';
 import {z} from 'zod';
 import validateObject from '../../utils/validateObject';
 
-export const LoginHandler = async (req: Request, res: Response) => {
+export const RegisterHandler = async (req: Request, res: Response) => {
 	await deleteExpiredRefreshTokens();
 
 	const RequestSchema = z.object({
-		credential: z.string({required_error: 'credential field does not exist'})
+		name: z.string({required_error: 'name is required'}).trim().max(255),
+		email: z.string({required_error: 'email is required'}).trim().toLowerCase().max(255),
+		password: z.string({required_error: 'password is required'})
+			.min(6, 'Minimum password length is 6')
+			.max(255, 'Maximum password length is 255'),
 	});
 
 	const validatedRequest = validateObject(RequestSchema, req.body);
@@ -31,39 +34,42 @@ export const LoginHandler = async (req: Request, res: Response) => {
 		return MISSING_BODY_FIELDS(res, validatedRequest.errors);
 	}
 
-	const profile = await verifyGoogleToken(validatedRequest.data.credential);
-	if (profile == null) {
-		return INVALID_LOGIN_CREDENTIALS(res);
+	if (await emailExists(validatedRequest.data.email)) {
+		return CONFLICT(res, 'Account with given email already exist');
 	}
 
-	if (!(typeof profile === 'object' &&
-		'email' in profile && typeof profile.email === 'string' &&
-		'name' in profile && typeof profile.name === 'string' &&
-		'picture' in profile && typeof profile.picture === 'string'
-	)) {
-		return SERVER_ERROR(res, 'Google Authentication failed');
+	if (!(await createUser({
+		name: validatedRequest.data.name,
+		email: validatedRequest.data.email,
+		passwordHash: await hashPassword(validatedRequest.data.password),
+	}))) {
+		return SERVER_ERROR(res, 'Error: try again later');
 	}
 
-	let firstLogin = false;
-	// user not found in DB
-	if (!(await emailExists(profile.email))) {
-		firstLogin = true;
+	return ACCOUNT_CREATED(res);
+};
 
-		if (!(await createUser({
-			email: profile.email,
-			name: profile?.name,
-			picture: profile?.picture
-		}))) {
-			return BAD_REQUEST(res, 'Something went wrong! Account has not been created');
-		}
+export const LoginHandler = async (req: Request, res: Response) => {
+	await deleteExpiredRefreshTokens();
+
+	const RequestSchema = z.object({
+		email: z.string({required_error: 'email is required'}).trim().toLowerCase().max(255),
+		password: z.string({required_error: 'password is required'}).max(255),
+	});
+
+	const validatedRequest = validateObject(RequestSchema, req.body);
+
+	if (validatedRequest.data == null) {
+		return MISSING_BODY_FIELDS(res, validatedRequest.errors);
 	}
 
-	const [user, _] = await Promise.all([
-		getUserByEmail(profile.email),
-		updateNameAndPicture(profile?.name, profile?.picture, profile.email) // update name in db if changed
-	]);
+	const user = await getUserByEmail(validatedRequest.data.email);
 
 	if (user == null) {
+		return UNAUTHORIZED(res);
+	}
+
+	if (!(await isPassCorrect(validatedRequest.data.password, user.password))) {
 		return UNAUTHORIZED(res);
 	}
 
@@ -88,9 +94,7 @@ export const LoginHandler = async (req: Request, res: Response) => {
 		user
 	};
 
-	return firstLogin ?
-		ACCOUNT_CREATED(res, data) :
-		SUCCESS(res, 'User logged successfully', data);
+	return SUCCESS(res, 'Logged successfully', data);
 };
 
 export const RefreshTokenHandler = async (req: Request, res: Response) => {

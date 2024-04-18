@@ -15,10 +15,8 @@ import {
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import {useSidebar} from '@/context/SidebarContext';
-import RouterLink from '@/components/routing/RouterLink';
-import SidebarNavigation from '@/components/sidebar/SidebarNavigation.tsx';
+import SidebarNavigation from '@/components/sidebar/SidebarNavigation';
 import {Navigate, useLocation} from 'react-router-dom';
 import theme from '@/theme';
 
@@ -124,7 +122,7 @@ const DrawerView: React.FC<DraweViewProps> = ({children, pageTitle}) => {
 							noWrap
 							sx={{flexGrow: 1}}
 						>
-							{pageTitle ?? 'AFK Cookbook'}
+							{pageTitle ?? 'Page name'}
 						</Typography>
 						{/*<IconButton color="inherit">*/}
 						{/*	<RouterLink to="#">*/}
