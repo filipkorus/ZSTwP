@@ -28,3 +28,6 @@ dist-ssr
 
 compose-local.yml
 database
+
+venv
+__pycache__
