@@ -11,9 +11,12 @@ from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
 
 app = Flask(__name__)
+conversation_chain = None
+
 
 @app.route('/chat_with_pdfs', methods=['POST'])
 def chat_with_pdfs():
+    global conversation_chain  # Access the global conversation_chain variable
     pdf_urls = request.json.get('pdf_urls', [])
     
     # Get PDF text
@@ -30,13 +33,19 @@ def chat_with_pdfs():
     
     return jsonify({'message': 'Ready for chat!'})
 
+
 @app.route('/ask_question', methods=['POST'])
 def ask_question():
+    global conversation_chain  # Access the global conversation_chain variable
     question = request.json.get('question', '')
     
-    response = handle_userinput(question)
+    if conversation_chain is None:
+        return jsonify({'error': 'Conversation chain not initialized'}), 500
+    
+    response = handle_userinput(question, conversation_chain)
     
     return jsonify({'response': response})
+
 
 def get_pdf_text(pdf_urls):
     text = ""
@@ -44,7 +53,7 @@ def get_pdf_text(pdf_urls):
         text += retrieve_pdf_contents(url)
         # pdf_reader = PdfReader(pdf_contents)
         # for page in pdf_reader.pages:
-        #     text += page.extract_text()
+        #       text += page.extract_text()
     return text
             
 def retrieve_pdf_contents(url):
