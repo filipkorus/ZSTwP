@@ -30,7 +30,7 @@ const SidebarMenu: React.FC = () => {
 		<Box display="flex" flexDirection="column" height="100%">
 			<ListItem alignItems="flex-start">
 				<ListItemAvatar>
-					<Avatar alt={currentUser.name} src={currentUser.picture}/>
+					<Avatar alt={currentUser.name} src=""/>
 				</ListItemAvatar>
 				<ListItemText
 					primary={currentUser.name}
