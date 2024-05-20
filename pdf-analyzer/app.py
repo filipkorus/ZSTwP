@@ -24,10 +24,9 @@ tools = []
 files = [
 
     {
-        "name": "My-company-Functions",
+        "name": "My-company-Capabilities",
         "path": "pdf_files/requirements/output.pdf",
-        # "description":"Highlights the details, range and scope of services and capabilities offered by my company",
-        "description":"List of functions and technologies that my company is capable of doing",
+        "description":"List of applications and functionalities that my company is capable of doing",
     },
 
     {
@@ -45,13 +44,11 @@ for file in files:
     embeddings = OpenAIEmbeddings()
     retriever = FAISS.from_documents(docs, embeddings).as_retriever()
 
-    # Wrap retrievers in a Tool
     tools.append(
         Tool(
             args_schema=DocumentInput,
             name=file["name"],
-            description=file["description"],
-            # description=f"useful when you want to answer questions about {file['name']}",
+            description=f"useful when you want to answer questions about {file['name']}. {file['description']}",
             func=RetrievalQA.from_chain_type(llm=llm, retriever=retriever),
         )
     )
@@ -64,7 +61,7 @@ agent = initialize_agent(
     verbose=True,
 )
 
-document_input = DocumentInput(question="List functions from My-company-Functions similar to requirements from Client-business-inquiry. Provide brief details.")
+document_input = DocumentInput(question="List similar topics from My-company-Functions and Client-business-inquiry")
 response = agent({"input": document_input})
 
 # document_input = DocumentInput(question="List functions from My-company-Functions similar to requirements from Client-business-inquiry. Provide brief details.")
@@ -73,33 +70,3 @@ response = agent({"input": document_input})
 # response = agent({"input": "List a few of my company capabilities from My-company-capabilities"})
 print(response)
 print(llm.model_name)
-
-
-
-
-
-
-
-
-
-# from langchain_community.document_loaders import PyPDFLoader
-# from dotenv import load_dotenv
-# import os
-
-# load_dotenv()
-# api_key = os.getenv('OPENAI_API_KEY')
-
-# inquiry = PyPDFLoader("pdf_files/test.pdf")
-
-
-
-
-
-
-
-# # loader = PyPDFLoader("https://arxiv.org/pdf/2302.03803.pdf") #mozna tez dac mu argument jako url :))))
-# pages = inquiry.load_and_split()
-# # for i in range (0, len(pages)):
-# #     print(pages[i])
-# # print(pages)
-
