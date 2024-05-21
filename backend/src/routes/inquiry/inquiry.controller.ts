@@ -64,6 +64,7 @@ export const CreateInquiryHandler = async (req: Request, res: Response) => {
 
 	const {files} = req;
 	const filesProperties: Array<{name: string, url: string, size: number, mimetype: string}> = [];
+	const deleteFiles = () => filesProperties.forEach(file => deleteFile(config.FILE_UPLOAD_LOCATION + file.url));
 	let errorOccurred = false;
 
 	for (let i = 1; i <= config.MAX_NUM_FILES_TO_UPLOAD; ++i) {
@@ -98,6 +99,8 @@ export const CreateInquiryHandler = async (req: Request, res: Response) => {
 	}
 
 	if (errorOccurred) {
+		deleteFiles();
+
 		return; // without response because it was sent inside callback few lines above
 	}
 
@@ -108,8 +111,7 @@ export const CreateInquiryHandler = async (req: Request, res: Response) => {
 	});
 
 	if (inquiry == null) {
-		// delete files
-		filesProperties.forEach(file => deleteFile(config.FILE_UPLOAD_LOCATION + file.url));
+		deleteFiles();
 
 		return SERVER_ERROR(res, 'Database error');
 	}
@@ -147,8 +149,7 @@ export const CreateInquiryHandler = async (req: Request, res: Response) => {
 			logger.error(error);
 		}
 
-		// delete files
-		filesProperties.forEach(file => deleteFile(config.FILE_UPLOAD_LOCATION + file.url));
+		deleteFiles();
 
 		return;
 	}
@@ -159,6 +160,5 @@ export const CreateInquiryHandler = async (req: Request, res: Response) => {
 		status: 1 // 1 means success, 0 means processing, -1 means error
 	});
 
-	// delete files
-	filesProperties.forEach(file => deleteFile(config.FILE_UPLOAD_LOCATION + file.url));
+	deleteFiles();
 };
