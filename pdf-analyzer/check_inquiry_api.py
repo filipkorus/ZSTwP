@@ -9,11 +9,10 @@ from pydantic import BaseModel, Field
 import os
 from dotenv import load_dotenv
 
+# Załaduj zmienne środowiskowe
 load_dotenv()
 api_key = os.getenv('OPENAI_API_KEY')
 port_num = os.getenv('PORT')
-
-tools_dict = {}
 
 class DocumentInput(BaseModel):
     question: str = Field()
@@ -25,7 +24,6 @@ app = Flask(__name__)
 @app.route("/check_inquiry/", methods=["POST"])
 def check_inquiry():
     data = request.json
-    id = data["id"]
     pdf_files = data["pdf_files"]
 
     tools = []
@@ -64,8 +62,6 @@ def check_inquiry():
             )
         )
 
-    tools_dict[id] = tools
-
     agent = initialize_agent(
         agent=AgentType.OPENAI_MULTI_FUNCTIONS,
         tools=tools,
@@ -74,7 +70,10 @@ def check_inquiry():
     )
 
     try:
-        document_input = DocumentInput(question="List similar topics from My-company-Functions and Client-business-inquiry")
+        file_names = [file["name"] for file in files[1:]]
+        file_names_str = ", ".join(file_names)
+        question_with_prompt_files = f"List similar topics from My-company-Functions and inquiry files: {file_names_str}"
+        document_input = DocumentInput(question=question_with_prompt_files)
         response = agent({"input": document_input})
         response_serializable = {
             "input": document_input.dict(),
