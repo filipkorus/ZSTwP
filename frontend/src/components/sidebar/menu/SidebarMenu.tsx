@@ -1,6 +1,8 @@
 import React, {useState} from 'react';
 import LogoutIcon from '@mui/icons-material/Logout';
 import ListIcon from '@mui/icons-material/List';
+import GridViewIcon from '@mui/icons-material/GridView';
+import NoteAddIcon from '@mui/icons-material/NoteAdd';
 import SidebarMenuItem from '@/components/sidebar/menu/SidebarMenuItem';
 import {useAuth} from '@/context/AuthContext';
 import {useNavigate} from 'react-router-dom';
@@ -51,10 +53,24 @@ const SidebarMenu: React.FC = () => {
 			</ListItem>
 
 			<SidebarMenuItem
-				linkTo="#"
-				text="Example nav link"
-				title="Click me!"
+				linkTo="/"
+				text="Dashboard"
+				title="Dashboard"
+				icon={<GridViewIcon/>}
+			/>
+
+			<SidebarMenuItem
+				linkTo="/inquires"
+				text="Your Inquires"
+				title="Your Inquires"
 				icon={<ListIcon/>}
+			/>
+
+			<SidebarMenuItem
+				linkTo="/new-inquiry"
+				text="New Inquiry"
+				title="New Inquiry"
+				icon={<NoteAddIcon/>}
 			/>
 
 			<Box mt={1}>

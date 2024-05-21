@@ -9,6 +9,8 @@ lerna-debug.log*
 
 .env
 
+pdf-analyzer/pdf_files/uploads/*
+
 node_modules
 dist
 dist-ssr

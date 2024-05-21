@@ -5,6 +5,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY check_inquiry_api.py .
+COPY main.py .
+COPY pdf_files/requirements/output.pdf ./pdf_files/requirements/output.pdf
 
-ENTRYPOINT ["python", "check_inquiry_api.py"]
+ENTRYPOINT ["python", "main.py"]

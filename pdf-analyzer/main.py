@@ -1,4 +1,6 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS, cross_origin
+
 from langchain.agents import Tool, AgentType, initialize_agent
 from langchain.chains import RetrievalQA
 from langchain_community.document_loaders import PyPDFLoader
@@ -13,6 +15,8 @@ from dotenv import load_dotenv
 load_dotenv()
 api_key = os.getenv('OPENAI_API_KEY')
 port_num = os.getenv('PORT')
+production = int(os.getenv('PRODUCTION')) if type(os.getenv('PRODUCTION')) != type(1) else os.getenv('PRODUCTION')
+file_upload_location = os.getenv('FILE_UPLOAD_LOCATION') # being used only when production==1
 
 class DocumentInput(BaseModel):
     question: str = Field()
@@ -20,8 +24,10 @@ class DocumentInput(BaseModel):
 llm = ChatOpenAI(temperature=0, model="gpt-4o")
 
 app = Flask(__name__)
+cors = CORS(app)
 
 @app.route("/check_inquiry/", methods=["POST"])
+@cross_origin()
 def check_inquiry():
     try:
         data = request.json
@@ -42,10 +48,12 @@ def check_inquiry():
             files.append(
                 {
                     "name": file["name"],
-                    "path": file["url"],
+                    "path": ('pdf_files/uploads/' if production != 1 else file_upload_location) + file["url"],
                     "description": "Business inquiry, with detailed informations about what client expects",
                 }
             )
+
+#         print(files)
 
         for file in files:
             loader = PyPDFLoader(file["path"])
@@ -76,7 +84,7 @@ def check_inquiry():
         else:
             file_names = [file["name"] for file in files[1:]]
             file_names_str = ", ".join(file_names)
-            final_question = f"List similar topics from My-company-Functions and inquiry files: {file_names_str}"
+            final_question = f"List similar topics from My-company-Capabilities and inquiry files: {file_names_str}"
         
         # WARN -> final question has prompt len limits, be carefull with CUSTOM prompt len, may cause API errors, TO DO FIX :))) pozdrawiam
         document_input = DocumentInput(question=final_question)
