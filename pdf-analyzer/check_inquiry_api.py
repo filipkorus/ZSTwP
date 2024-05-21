@@ -23,54 +23,54 @@ app = Flask(__name__)
 
 @app.route("/check_inquiry/", methods=["POST"])
 def check_inquiry():
-    data = request.json
-    pdf_files = data["pdf_files"]
-    custom_question = data.get("custom_question")
-
-    tools = []
-
-    files = [
-        {
-            "name": "My-company-Capabilities",
-            "path": "pdf_files/requirements/output.pdf",
-            "description": "List of applications and functionalities that my company is capable of doing",
-        },
-    ]
-
-    for file in pdf_files:
-        files.append(
-            {
-                "name": file["name"],
-                "path": file["url"],
-                "description": "Business inquiry, with detailed informations about what client expects",
-            }
-        )
-
-    for file in files:
-        loader = PyPDFLoader(file["path"])
-        pages = loader.load_and_split()
-        text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
-        docs = text_splitter.split_documents(pages)
-        embeddings = OpenAIEmbeddings()
-        retriever = FAISS.from_documents(docs, embeddings).as_retriever()
-
-        tools.append(
-            Tool(
-                args_schema=DocumentInput,
-                name=file["name"],
-                description=f"useful when you want to answer questions about {file['name']}. {file['description']}",
-                func=RetrievalQA.from_chain_type(llm=llm, retriever=retriever),
-            )
-        )
-
-    agent = initialize_agent(
-        agent=AgentType.OPENAI_MULTI_FUNCTIONS,
-        tools=tools,
-        llm=llm,
-        verbose=True,
-    )
-
     try:
+        data = request.json
+        pdf_files = data["pdf_files"]
+        custom_question = data.get("custom_question")
+
+        tools = []
+
+        files = [
+            {
+                "name": "My-company-Capabilities",
+                "path": "pdf_files/requirements/output.pdf",
+                "description": "List of applications and functionalities that my company is capable of doing",
+            },
+        ]
+
+        for file in pdf_files:
+            files.append(
+                {
+                    "name": file["name"],
+                    "path": file["url"],
+                    "description": "Business inquiry, with detailed informations about what client expects",
+                }
+            )
+
+        for file in files:
+            loader = PyPDFLoader(file["path"])
+            pages = loader.load_and_split()
+            text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+            docs = text_splitter.split_documents(pages)
+            embeddings = OpenAIEmbeddings()
+            retriever = FAISS.from_documents(docs, embeddings).as_retriever()
+
+            tools.append(
+                Tool(
+                    args_schema=DocumentInput,
+                    name=file["name"],
+                    description=f"useful when you want to answer questions about {file['name']}. {file['description']}",
+                    func=RetrievalQA.from_chain_type(llm=llm, retriever=retriever),
+                )
+            )
+
+        agent = initialize_agent(
+            agent=AgentType.OPENAI_MULTI_FUNCTIONS,
+            tools=tools,
+            llm=llm,
+            verbose=True,
+        )
+
         if custom_question:
             final_question = custom_question
         else:
