@@ -127,7 +127,7 @@ export const CreateInquiryHandler = async (req: Request, res: Response) => {
 	SUCCESS(res, 'Files uploaded successfully.');
 
 	const pdf_files = filesProperties.map(file => ({
-		name: file.name.replace(' ', '-').replace('.', '-'),
+		name: file.name.replaceAll(' ', '-').replaceAll('.', '-'),
 		url: file.url
 	}));
 
