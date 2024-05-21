@@ -11,13 +11,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 api_key = os.getenv('OPENAI_API_KEY')
+port_num = os.getenv('PORT')
 
 tools_dict = {}
 
 class DocumentInput(BaseModel):
     question: str = Field()
 
-llm = ChatOpenAI(temperature=0, model="gpt-4")
+llm = ChatOpenAI(temperature=0, model="gpt-4o")
 
 app = Flask(__name__)
 
@@ -72,10 +73,18 @@ def check_inquiry():
         verbose=True,
     )
 
-    document_input = DocumentInput(question="List similar topics from My-company-Functions and Client-business-inquiry")
-    response = agent({"input": document_input.dict()})
-
-    return jsonify(response)
+    try:
+        document_input = DocumentInput(question="List similar topics from My-company-Functions and Client-business-inquiry")
+        response = agent({"input": document_input})
+        response_serializable = {
+            "input": document_input.dict(),
+            "output": response['output']
+        }
+        
+        return jsonify(response_serializable)
+    except Exception as e:
+        app.logger.error(f"Exception on /check_inquiry/: {e}")
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000)
+    app.run(host="0.0.0.0", port=port_num)
