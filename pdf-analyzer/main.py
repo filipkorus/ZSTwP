@@ -53,7 +53,7 @@ def check_inquiry():
                 }
             )
 
-        print(files)
+#         print(files)
 
         for file in files:
             loader = PyPDFLoader(file["path"])

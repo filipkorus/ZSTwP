@@ -1,7 +1,7 @@
 import {Request, Response} from 'express';
 import path from 'path';
 import {BAD_REQUEST, NOT_FOUND, SERVER_ERROR, SUCCESS} from '../../utils/httpCodeResponses/messages';
-import {createInquiry, deleteInquiryById, getInquiryById, updateInquiry} from './inquiry.service';
+import {createInquiry, deleteInquiryById, getInquiryById, getInquiryByUserId, updateInquiry} from './inquiry.service';
 import {v4 as uuidv4} from 'uuid';
 import {UploadedFile} from 'express-fileupload';
 import axios from 'axios';
@@ -10,7 +10,11 @@ import logger from '../../utils/logger';
 import deleteFile from '../../utils/deleteFile';
 
 export const GetInquiryHandler = async (req: Request, res: Response) => {
-	return SERVER_ERROR(res, 'This endpoint is not implemented yet!');
+	const inquiries = await getInquiryByUserId(+res.locals.user.id);
+	if (inquiries == null) {
+		return NOT_FOUND(res, `No inquiries found yet`);
+	}
+	return SUCCESS(res, 'Inquiries data fetched successfully', inquiries);
 };
 
 export const GetInquiryByIdHandler = async (req: Request, res: Response) => {
@@ -60,6 +64,10 @@ export const CreateInquiryHandler = async (req: Request, res: Response) => {
 	const {prompt} = req.body;
 	if (prompt != null && typeof prompt != 'string') {
 		return BAD_REQUEST(res, 'Prompt must be a string!');
+	}
+
+	if (prompt != null && prompt.trim().length === 0) {
+		return BAD_REQUEST(res, 'Invalid prompt!');
 	}
 
 	const {files} = req;

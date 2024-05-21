@@ -4,6 +4,21 @@ import logger from '../../utils/logger';
 const prisma = new PrismaClient();
 
 /**
+ * Returns inquiry object with given user ID.
+ *
+ * @returns {Promise<Array<Inquiry> | null> | null} Inquiry object or null if error.
+ * @param userId {number} User's ID.
+ */
+export const getInquiryByUserId = (userId: number): Promise<Array<Inquiry> | null> | null => {
+	try {
+		return prisma.inquiry.findMany({where: {userId: userId}});
+	} catch (error) {
+		logger.error(error);
+		return null;
+	}
+};
+
+/**
  * Returns inquiry object with given inquiry ID.
  *
  * @returns {Promise<Inquiry|null>|null} Inquiry object or null if error.
