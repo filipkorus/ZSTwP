@@ -1,0 +1,24 @@
+[
+  {
+    "pdf_files": [
+      {
+        "name": "Client-business-inquiry",
+        "url": "pdf_files/test.pdf"
+      },
+      {
+        "name": "Another-document",
+        "url": "pdf_files/test.pdf"
+      }
+    ]
+  },
+
+  {
+    "pdf_files": [
+      {
+        "name": "Client-business-inquiry",
+        "url": "pdf_files/test.pdf"
+      }
+    ],
+    "custom_question": "Please analyze the business inquiries and provide a detailed comparison with my comapny file."
+  }
+]
