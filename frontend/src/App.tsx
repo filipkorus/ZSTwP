@@ -6,6 +6,7 @@ import LoginPage from '@/pages/LoginPage';
 import NotFound from '@/pages/errors/NotFound';
 import DrawerView from '@/pages/DrawerView';
 import RegisterPage from '@/pages/RegisterPage';
+import Dashboard from '@/pages/Dashboard';
 
 const App = () => {
 	return <Router>
@@ -13,7 +14,7 @@ const App = () => {
 			<Route path="/" element={<PrivateRoute/>}>
 				<Route path="" element={
 					<DrawerView pageTitle="Dashboard">
-						<h1>Dashboard</h1>
+						<Dashboard />
 					</DrawerView>
 				}/>
 			</Route>
