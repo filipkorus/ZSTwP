@@ -18,6 +18,9 @@ const config = {
 		}
 	},
 	DATABASE_URL: process.env.DATABASE_URL,
+	MAX_NUM_FILES_TO_UPLOAD: 25,
+	FILE_UPLOAD_LOCATION: process.env.FILE_UPLOAD_LOCATION,
+	PDF_ANALYZER_API_URL: process.env.PDF_ANALYZER_API_URL,
 	JWT: {
 		ACCESS_TOKEN: {
 			SECRET: 'q1j23_dnej823y_h2s8427vf134k_94_k2d4',

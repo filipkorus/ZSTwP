@@ -1,6 +1,7 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import fileUpload from 'express-fileupload';
 import router from './routes/main.router';
 import requestLogger from './middlewares/requestLogger';
 import authenticate from './middlewares/authenticate';
@@ -16,6 +17,12 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(cookieParser());
+
+/* express file upload */
+app.use(fileUpload({
+	useTempFiles: true,
+	tempFileDir: '/tmp/'
+}));
 
 /* custom middlewares */
 app.use(authenticate);

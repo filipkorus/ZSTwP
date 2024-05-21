@@ -16,6 +16,7 @@ model User {
   banned       Boolean        @default(false)
   joinedAt     DateTime       @default(now())
   RefreshToken RefreshToken[]
+  Inquiry      Inquiry[]
 }
 
 model RefreshToken {
@@ -24,5 +25,16 @@ model RefreshToken {
   expiresAt DateTime
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+}
+
+model Inquiry {
+  id        Int      @id @default(autoincrement())
+  files     String // colon-separated file names, example:  file1.pdf:file2.pdf:file3.pdf
+  prompt    String   @default("")
+  response  String?  @db.Text
+  status    Int      @default(0)
+  createdAt DateTime @default(now())
+  User      User     @relation(fields: [userId], references: [id])
   userId    Int
 }

@@ -35,6 +35,7 @@ services:
       - ./uploads:/app/uploads
     environment:
       PORT: 7000
+      FILE_UPLOAD_LOCATION: "/app/uploads/"
   backend:
     build: backend
     restart: always
@@ -47,3 +48,5 @@ services:
     environment:
       PORT: 9000
       LOG_LEVEL: "debug"
+      FILE_UPLOAD_LOCATION: "/app/uploads/"
+      PDF_ANALYZER_API_URL: "http://pdf-analyzer:7000"
