@@ -26,12 +26,24 @@ services:
     restart: always
     depends_on:
       - nginx
+  pdf-analyzer:
+    build: pdf-analyzer
+    restart: always
+    depends_on:
+      - nginx
+    volumes:
+      - ./uploads:/app/uploads
+    environment:
+      PORT: 7000
   backend:
     build: backend
     restart: always
     depends_on:
       - nginx
       - mysql
+      - pdf-analyzer
+    volumes:
+      - ./uploads:/app/uploads
     environment:
       PORT: 9000
       LOG_LEVEL: "debug"
