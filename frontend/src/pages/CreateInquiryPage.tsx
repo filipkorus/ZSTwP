@@ -26,8 +26,8 @@ const FileItem = styled(Typography)(({ theme }) => ({
 const CreateInquiryPage = () => {
 	const [files, setFiles] = useState<File[]>([]);
 	const [customPrompt, setCustomPrompt] = useState<string>('');
-	const [successMsg, setSuccessMsg] = useState<string>('aaaaaaaaaa');
-	const [errorMsg, setErrprMsg] = useState<string>('aaaaaaaaaa');
+	const [successMsg, setSuccessMsg] = useState<string>('');
+	const [errorMsg, setErrprMsg] = useState<string>('');
 
 	const { getRootProps, getInputProps } = useDropzone({
 		accept: {
