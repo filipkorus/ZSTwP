@@ -25,6 +25,7 @@ app = Flask(__name__)
 def check_inquiry():
     data = request.json
     pdf_files = data["pdf_files"]
+    custom_question = data.get("custom_question")
 
     tools = []
 
@@ -70,10 +71,15 @@ def check_inquiry():
     )
 
     try:
-        file_names = [file["name"] for file in files[1:]]
-        file_names_str = ", ".join(file_names)
-        question_with_prompt_files = f"List similar topics from My-company-Functions and inquiry files: {file_names_str}"
-        document_input = DocumentInput(question=question_with_prompt_files)
+        if custom_question:
+            final_question = custom_question
+        else:
+            file_names = [file["name"] for file in files[1:]]
+            file_names_str = ", ".join(file_names)
+            final_question = f"List similar topics from My-company-Functions and inquiry files: {file_names_str}"
+        
+        # WARN -> final question has prompt len limits, be carefull with CUSTOM prompt len, may cause API errors, TO DO FIX :))) pozdrawiam
+        document_input = DocumentInput(question=final_question)
         response = agent({"input": document_input})
         response_serializable = {
             "input": document_input.dict(),
@@ -81,8 +87,9 @@ def check_inquiry():
         }
         
         return jsonify(response_serializable)
+    
     except Exception as e:
-        app.logger.error(f"Exception on /check_inquiry/: {e}")
+        app.logger.error(f"Exception on /check_inquiry API: {e}")
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
