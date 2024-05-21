@@ -27,7 +27,7 @@ const CreateInquiryPage = () => {
 	const [files, setFiles] = useState<File[]>([]);
 	const [customPrompt, setCustomPrompt] = useState<string>('');
 	const [successMsg, setSuccessMsg] = useState<string>('');
-	const [errorMsg, setErrprMsg] = useState<string>('');
+	const [errorMsg, setErrorMsg] = useState<string>('');
 
 	const { getRootProps, getInputProps } = useDropzone({
 		accept: {
@@ -50,21 +50,21 @@ const CreateInquiryPage = () => {
 		try {
 			const {data, status} = await uploadInquiry(formData);
 			if (data?.success) {
-				setErrprMsg('');
+				setErrorMsg('');
 				setSuccessMsg(data?.msg);
 
 				setFiles([]);
 				setCustomPrompt('');
 			} else {
 				setSuccessMsg('');
-				setErrprMsg(data?.msg);
+				setErrorMsg(data?.msg);
 			}
 		} catch (err) {
 			console.error(err);
 			if (!(err instanceof AxiosError)) return;
 
 			setSuccessMsg('');
-			setErrprMsg(err.response?.data?.msg);
+			setErrorMsg(err.response?.data?.msg);
 		}
 	};
 
