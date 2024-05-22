@@ -8,6 +8,7 @@ import axios from 'axios';
 import config from '../../../config';
 import logger from '../../utils/logger';
 import deleteFile from '../../utils/deleteFile';
+import removePolishChars from '../../utils/removePolishChars';
 
 export const GetInquiryHandler = async (req: Request, res: Response) => {
 	const inquiries = await getInquiryByUserId(+res.locals.user.id);
@@ -127,7 +128,7 @@ export const CreateInquiryHandler = async (req: Request, res: Response) => {
 	SUCCESS(res, 'Files uploaded successfully.');
 
 	const pdf_files = filesProperties.map(file => ({
-		name: file.name.replaceAll(' ', '-').replaceAll('.', '-'),
+		name: removePolishChars(file.name).replaceAll(' ', '-').replaceAll('.', '-'),
 		url: file.url
 	}));
 
