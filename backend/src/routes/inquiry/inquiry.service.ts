@@ -11,7 +11,7 @@ const prisma = new PrismaClient();
  */
 export const getInquiryByUserId = (userId: number): Promise<Array<Inquiry> | null> | null => {
 	try {
-		return prisma.inquiry.findMany({where: {userId: userId}});
+		return prisma.inquiry.findMany({where: {userId: userId}, orderBy: {id: 'desc'}});
 	} catch (error) {
 		logger.error(error);
 		return null;

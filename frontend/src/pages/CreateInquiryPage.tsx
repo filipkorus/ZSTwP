@@ -4,6 +4,7 @@ import { styled } from '@mui/system';
 import {useState} from 'react';
 import {uploadInquiry} from '@/api/inquiry';
 import {AxiosError} from 'axios';
+import {useNavigate} from 'react-router-dom';
 
 const DropzoneContainer = styled(Box)(({ theme }) => ({
 	border: '2px dashed #ccc',
@@ -28,6 +29,8 @@ const CreateInquiryPage = () => {
 	const [customPrompt, setCustomPrompt] = useState<string>('');
 	const [successMsg, setSuccessMsg] = useState<string>('');
 	const [errorMsg, setErrorMsg] = useState<string>('');
+
+	const navigate = useNavigate();
 
 	const { getRootProps, getInputProps } = useDropzone({
 		accept: {
@@ -55,6 +58,12 @@ const CreateInquiryPage = () => {
 
 				setFiles([]);
 				setCustomPrompt('');
+
+				const timeout = setTimeout(() => {
+					const id = data?.inquiry.id;
+					navigate(`/inquiry/${id}`);
+					clearTimeout(timeout);
+				}, 4_000);
 			} else {
 				setSuccessMsg('');
 				setErrorMsg(data?.msg);

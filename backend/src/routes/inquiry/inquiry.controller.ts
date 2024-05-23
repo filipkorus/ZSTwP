@@ -125,7 +125,7 @@ export const CreateInquiryHandler = async (req: Request, res: Response) => {
 		return SERVER_ERROR(res, 'Database error');
 	}
 
-	SUCCESS(res, 'Files uploaded successfully.');
+	SUCCESS(res, 'Files uploaded successfully.', {inquiry});
 
 	const pdf_files = filesProperties.map(file => ({
 		name: removePolishChars(file.name).replaceAll(' ', '-').replaceAll('.', '-'),
