@@ -34,6 +34,8 @@ const InquiryCard: React.FC<InquiryProps> = ({inquiry, displayResponse}) => {
 	};
 
 	const deleteInquiry = async () => {
+		if (inquiry.status === 0) return; // cannot delete pending inquiries
+
 		const deleteConfirmed = confirm(`Are you sure to delete Inquiry #${inquiry.id}?`);
 
 		if (!deleteConfirmed) return;
@@ -68,7 +70,7 @@ const InquiryCard: React.FC<InquiryProps> = ({inquiry, displayResponse}) => {
 									color={inquiryStatusColor(inquiry.status as Status)}
 								/>
 							</Box>
-							{displayResponse &&
+							{displayResponse && inquiry.status !== 0 &&
                          <Box>
                              <IconButton
                                  color="error"

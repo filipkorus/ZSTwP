@@ -27,7 +27,7 @@ const InquiryPage = () => {
 		const interval = setInterval(() => {
 			getInquiryById(+inquiryId)
 				.then(({data}) => {
-					if (data.inquiry.status !== 0) return;
+					if (data.inquiry.status === 0) return;
 
 					setInquiry(data?.inquiry);
 					clearInterval(interval);
