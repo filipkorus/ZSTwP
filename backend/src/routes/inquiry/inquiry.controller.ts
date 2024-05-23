@@ -15,7 +15,7 @@ export const GetInquiryHandler = async (req: Request, res: Response) => {
 	if (inquiries == null) {
 		return NOT_FOUND(res, `No inquiries found yet`);
 	}
-	return SUCCESS(res, 'Inquiries data fetched successfully', inquiries);
+	return SUCCESS(res, 'Inquiries data fetched successfully', {inquiries});
 };
 
 export const GetInquiryByIdHandler = async (req: Request, res: Response) => {
