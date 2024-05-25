@@ -15,7 +15,7 @@ export const GetInquiryHandler = async (req: Request, res: Response) => {
 	if (inquiries == null) {
 		return NOT_FOUND(res, `No inquiries found yet`);
 	}
-	return SUCCESS(res, 'Inquiries data fetched successfully', inquiries);
+	return SUCCESS(res, 'Inquiries data fetched successfully', {inquiries});
 };
 
 export const GetInquiryByIdHandler = async (req: Request, res: Response) => {
@@ -125,7 +125,7 @@ export const CreateInquiryHandler = async (req: Request, res: Response) => {
 		return SERVER_ERROR(res, 'Database error');
 	}
 
-	SUCCESS(res, 'Files uploaded successfully.');
+	SUCCESS(res, 'Files uploaded successfully.', {inquiry});
 
 	const pdf_files = filesProperties.map(file => ({
 		name: removePolishChars(file.name).replaceAll(' ', '-').replaceAll('.', '-'),
