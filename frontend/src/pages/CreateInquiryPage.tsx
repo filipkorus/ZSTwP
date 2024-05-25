@@ -99,7 +99,7 @@ const CreateInquiryPage = () => {
 			fullWidth
 			margin="normal"
 			value={customPrompt}
-			onChange={(e) => setCustomPrompt(e.target.value))}
+			onChange={(e) => setCustomPrompt(e.target.value)}
 		/>
 		<Button type="submit" variant="contained" color="primary" fullWidth>
 			Submit
