@@ -41,8 +41,9 @@ const CreateInquiryPage = () => {
 
 		const formData = new FormData();
 
-		if (customPrompt.length !== 0) {
-			formData.append('prompt', customPrompt);
+		const prompt = customPrompt.trim();
+		if (prompt.length !== 0) {
+			formData.append('prompt', prompt);
 		}
 
 		files.forEach((file, idx) => formData.append(`file${idx+1}`, file));
@@ -89,7 +90,7 @@ const CreateInquiryPage = () => {
 			fullWidth
 			margin="normal"
 			value={customPrompt}
-			onChange={(e) => setCustomPrompt(e.target.value.trim())}
+			onChange={(e) => setCustomPrompt(e.target.value))}
 		/>
 		<Button type="submit" variant="contained" color="primary" fullWidth>
 			Submit
