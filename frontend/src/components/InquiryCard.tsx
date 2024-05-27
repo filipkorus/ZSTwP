@@ -95,12 +95,8 @@ const InquiryCard: React.FC<InquiryProps> = ({inquiry, displayResponse}) => {
 							<Typography variant="caption" component="p" gutterBottom>
 								Prompt: {inquiry.prompt || 'No prompt provided'}
 							</Typography>
-							{displayResponse &&
-                         <Typography component="p" gutterBottom>
-									 {inquiryStatusColor(inquiry.status as Status) !== 'error' &&
-										 (inquiry.response || 'Waiting for response...')
-									 }
-                         </Typography>
+							{displayResponse && inquiryStatusColor(inquiry.status as Status) !== 'error' &&
+                         <Typography component="p" gutterBottom dangerouslySetInnerHTML={{__html: inquiry.response || 'Waiting for response...'}}></Typography>
 							}
 						</Box>
 					</>
