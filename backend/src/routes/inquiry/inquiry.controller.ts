@@ -26,7 +26,7 @@ export const GetInquiryByIdHandler = async (req: Request, res: Response) => {
 	}
 
 	const inquiry = await getInquiryById(+inquiryId);
-	if (inquiry == null) {
+	if (inquiry == null || inquiry.userId !== res.locals.user.id) {
 		return NOT_FOUND(res, `Inquiry with ID = ${inquiryId} does not exist`);
 	}
 
