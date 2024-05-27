@@ -10,6 +10,7 @@ import RouterLink from '@/components/routing/RouterLink';
 import ErrorFields from '@/types/ErrorFields';
 import {register} from '@/api/auth';
 import {AxiosError} from 'axios';
+import Logo from '@/components/Logo';
 
 const LoginPage = () => {
 	const [loading, setLoading] = useState<boolean>(false);
@@ -70,12 +71,7 @@ const LoginPage = () => {
 			)}
 
 			<Grid container direction="column" alignItems="center" justifyContent="center" height="100%">
-				<div style={{textAlign: 'center'}}>
-					<img className="logo-animation" src={logo} alt="logo" style={{width: '80%', maxWidth: '200px'}}/>
-					<p style={{fontFamily: 'Brush Script MT, cursive', fontSize: '24px', color: '#960f5a'}}>
-						----------hello world----------
-					</p>
-				</div>
+				<Logo />
 
 				{errorMessage && currentUser == null && (
 					<Box marginTop="2rem">
