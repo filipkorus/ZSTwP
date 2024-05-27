@@ -10,6 +10,8 @@ from langchain_text_splitters import CharacterTextSplitter
 from pydantic import BaseModel, Field
 import os
 from dotenv import load_dotenv
+import re
+from unidecode import unidecode
 
 # Załaduj zmienne środowiskowe
 load_dotenv()
@@ -25,6 +27,24 @@ llm = ChatOpenAI(temperature=0, model="gpt-4o")
 
 app = Flask(__name__)
 cors = CORS(app)
+
+def sanitize_filename(filename):
+    sanitized_name = unidecode(filename.replace('-', ' '))
+    sanitized_name = re.sub(r'[^a-zA-Z0-9\s]', '', sanitized_name)
+    sanitized_name = sanitized_name.replace(' ', '-')
+    
+    return sanitized_name
+
+def convert_to_html(text):
+    text = re.sub(r'^\s*###\s*(.*?)\s*$', r'<h3>\1</h3>', text, flags=re.MULTILINE)
+    text = re.sub(r'^\s*##\s*(.*?)\s*$', r'<h2>\1</h2>', text, flags=re.MULTILINE)
+    text = re.sub(r'^\s*#\s*(.*?)\s*$', r'<h1>\1</h1>', text, flags=re.MULTILINE)
+    text = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', text)
+    text = re.sub(r'\n\s*---\s*\n', r'<hr>', text)
+    text = text.replace('\n', '<br>')
+    text = f'<p>{text}</p>'
+    
+    return text
 
 @app.route("/check_inquiry/", methods=["POST"])
 @cross_origin()
@@ -45,9 +65,10 @@ def check_inquiry():
         ]
 
         for file in pdf_files:
+            sanitized_name = sanitize_filename(file["name"])
             files.append(
                 {
-                    "name": file["name"],
+                    "name": sanitized_name,
                     "path": ('pdf_files/uploads/' if production != 1 else file_upload_location) + file["url"],
                     "description": "Business inquiry, with detailed informations about what client expects",
                 }
@@ -82,16 +103,16 @@ def check_inquiry():
         if custom_question:
             final_question = custom_question
         else:
-            file_names = [file["name"] for file in files[1:]]
+            file_names = [sanitize_filename(file["name"]) for file in files[1:]]
             file_names_str = ", ".join(file_names)
-            final_question = f"List similar topics from My-company-Capabilities and inquiry files: {file_names_str}"
+            final_question = f"List similar topics from My-company-Capabilities which are in inquiry files: {file_names_str}"
         
         # WARN -> final question has prompt len limits, be carefull with CUSTOM prompt len, may cause API errors, TO DO FIX :))) pozdrawiam
         document_input = DocumentInput(question=final_question)
         response = agent({"input": document_input})
         response_serializable = {
             "input": document_input.dict(),
-            "output": response['output']
+            "output": convert_to_html(response['output'])
         }
         
         return jsonify(response_serializable)
