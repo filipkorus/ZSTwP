@@ -1,0 +1,22 @@
+version: '3.4'
+
+services:
+  mysql:
+    environment:
+      MYSQL_DATABASE: "db_name"
+      MYSQL_USER: "db_user"
+      MYSQL_PASSWORD: "db_password"
+      MYSQL_ROOT_PASSWORD: "db_password"
+  phpmyadmin:
+    environment:
+      MYSQL_USERNAME: "db_user"
+      MYSQL_ROOT_PASSWORD: "db_password"
+      PMA_ABSOLUTE_URI: "http://localhost:7777/pma/"
+  pdf-analyzer:
+    environment:
+      OPENAI_API_KEY: "secret_key"
+      PRODUCTION: 1
+  backend:
+    environment:
+      DATABASE_URL: "mysql://db_user:db_password@mysql:3306/db_name"
+      ALLOWED_ORIGINS: "http://localhost:5173"
